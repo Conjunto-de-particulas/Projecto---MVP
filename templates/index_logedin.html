@@ -50,13 +50,8 @@
 
 <ul>
   <li><a class="active" href="/">Inicio</a></li>
-  {% if user %}
-    <li><a href="#">{{ user.username }}</a></li>
-    <li class="right"><a href="/logout">Cerrar Sesión</a></li>
-  {% else %}
-    <li class="right"><a href="/register">Registrarse</a></li>
-    <li><a href="/login">Iniciar Sesión</a></li>
-  {% endif %}
+  <li class="right"><a href="/logout">Cerrar Sesión</a></li>
+  <li><a href="#">[Nombre de Usuario]</a></li>
 </ul>
 
 <h1>Bienvenido a Grouper!</h1>
