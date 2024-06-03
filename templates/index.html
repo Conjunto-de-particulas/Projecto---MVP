@@ -44,6 +44,86 @@
             text-align: center;
             margin-top: 100px; /* Ajusta el margen superior según sea necesario */
         }
+
+        .events-container {
+            height: 400px; /* Altura fija para el contenedor de eventos */
+            overflow-y: auto; /* Habilita la barra de desplazamiento vertical */
+        }
+
+        .events {
+            display: flex;
+            flex-direction: column;
+            gap: 20px; /* Espacio entre cada evento */
+        }
+
+        .event {
+            display: flex;
+            align-items: center; /* Alinea verticalmente los elementos */
+            gap: 20px; /* Espacio entre la imagen y la información del evento */
+            border: 1px solid #ccc;
+            padding: 20px;
+            border-radius: 10px;
+            transition: transform 0.3s ease; /* Transición al desplazar */
+            width: 600px; /* Ancho fijo para los eventos */
+        }
+
+        .event:hover {
+            transform: translateY(-10px); /* Eleva ligeramente el evento al pasar el mouse */
+        }
+
+        .event img {
+            width: 100px; /* Ancho fijo para las imágenes */
+            height: 100px; /* Altura fija para las imágenes */
+            border-radius: 5px;
+            object-fit: cover; /* Escala la imagen para que llene el cuadro */
+        }
+
+        
+        .create-event-form {
+            display: none; /* Inicialmente oculto */
+            background-color: #fff;
+            border: 1px solid #ccc;
+            padding: 20px;
+            border-radius: 10px;
+            position: fixed; /* Posiciona el formulario sobre la página */
+            top: 20%;
+            left: 50%;
+            transform: translate(-50%, -25%);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            max-width: 90%; /* Asegura que el formulario no se salga de la pantalla */
+            max-height: 90%; /* Asegura que el formulario no se salga de la pantalla */
+            overflow-y: auto; /* Permite desplazamiento dentro del formulario si es necesario */
+        }
+
+        .form-field {
+            margin-bottom: 10px;
+        }
+
+        .form-field label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .form-field input, .form-field textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .form-field button {
+            background-color: #333;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .form-field button:hover {
+            background-color: #111;
+        }
     </style>
 </head>
 <body>
@@ -52,6 +132,7 @@
     <li><a class="active" href="/">Inicio</a></li>
     {% if user %}
         <li style="margin-left: auto;"><a href="#">{{ user.username }}</a></li>
+        <li><a class="create-event-btn" onclick="toggleForm()">Crear Evento</a></li>
         <li><a href="/logout">Cerrar Sesión</a></li>
     {% else %}
         <li style="margin-left: auto;"><a href="/register">Registrarse</a></li>
@@ -60,6 +141,60 @@
 </ul>
 
 <h1>Bienvenido a Grouper!</h1>
+
+<div class="events-container">
+    <!-- Sección de eventos -->
+    <div class="events">
+        {% for event in events %}
+        <div class="event">
+            <img src="{{ event[2] }}" alt="{{ event[0] }}">
+            <div>
+                <h2>{{ event[0] }}</h2>
+                <p>{{ event[1] }}</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+
+<div class="create-event-form" id="createEventForm" >
+    <h2>Crear Nuevo Evento</h2>
+    <form action="/create_event" method="POST">
+        <div class="form-field">
+            <label for="title">Título</label>
+            <input type="text" id="title" name="title" required>
+        </div>
+        <div class="form-field">
+            <label for="description">Descripción</label>
+            <textarea id="description" name="description" required></textarea>
+        </div>
+        <div class="form-field">
+            <label for="image">URL de la Imagen</label>
+            <input type="url" id="image" name="image" required>
+        </div>
+        <div class="form-field">
+            <button type="submit">Crear Evento</button>
+        </div>
+    </form>
+</div>
+
+<h1>Bienvenido a Grouper!</h1>
+<h1>Bienvenido a Grouper!</h1>
+<h1>Bienvenido a Grouper!</h1>
+<h1>Bienvenido a Grouper!</h1><h1>Bienvenido a Grouper!</h1>
+
+<script>
+    function toggleForm() {
+        var form = document.getElementById('createEventForm');
+        if (form.style.display === 'none' || form.style.display === '') {
+            form.style.display = 'block';
+        } else {
+            form.style.display = 'none';
+        }
+    }
+</script>
+
 
 </body>
 </html>

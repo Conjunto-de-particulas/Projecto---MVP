@@ -8,14 +8,18 @@ app.secret_key = 'tu_clave_secreta'
 conn = psycopg2.connect(
     dbname='Final',
     user='postgres',
-    password='admin',
+    password='19283746abC',
     host='localhost'
 )
 
 @app.route('/')
 def index():
     user = session.get('user')
-    return render_template('index.html', user=user)
+    cursor = conn.cursor()
+    cursor.execute('SELECT nombre, organizador, linkfoto FROM eventos')
+    events = cursor.fetchall()
+    cursor.close()
+    return render_template('index.html', user=user, events=events)
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -66,6 +70,32 @@ def login():
 def logout():
     session.pop('user', None)
     return redirect(url_for('index'))
+
+@app.route('/create_event', methods=['POST'])
+def create_event():
+    if 'user' in session and request.method == 'POST':
+        title = request.form['title']
+        description = request.form['description']
+        image = request.form['image']
+        eventoid = 0
+        check = True
+        # Insertar nuevo evento en la base de datos
+
+        cursor = conn.cursor()
+        while check:
+            print('loop')
+            try:
+                cursor.execute('INSERT INTO eventos (nombre, organizador, linkfoto, eventoid) VALUES (%s, %s, %s, %s)', (title, description, image, eventoid))
+                check = False
+            except Exception as e:
+                eventoid += 1 
+        conn.commit()
+        cursor.close()
+
+        return redirect(url_for('index'))
+    else:
+        return redirect(url_for('login'))
+
 
 if __name__ == '__main__':
     app.run(debug=True)
