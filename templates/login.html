@@ -69,7 +69,7 @@
     </style>
 </head>
 <body>
-    <form id="loginForm">
+    <form id="loginForm" method="POST" action="/login">
         <h2>Iniciar Sesión</h2>
         <label for="username">Nombre de usuario:</label>
         <input type="text" id="username" name="username" required>
@@ -84,7 +84,7 @@
 
     <script>
         document.getElementById('loginForm').addEventListener('submit', function(event) {
-            event.preventDefault(); // Evita la recarga de la página
+            //event.preventDefault(); // Evita la recarga de la página
 
             var username = document.getElementById('username').value;
             var password = document.getElementById('password').value;

@@ -70,7 +70,7 @@
     </style>
 </head>
 <body>
-    <form id="registrationForm">
+    <form id="registrationForm" method="POST" action="/register">
         <h2>Registro de Usuario</h2>
         <label for="username">Nombre de usuario:</label>
         <input type="text" id="username" name="username" required>
@@ -88,7 +88,7 @@
 
     <script>
         document.getElementById('registrationForm').addEventListener('submit', function(event) {
-            event.preventDefault(); // Evita la recarga de la página
+            //event.preventDefault(); // Evita la recarga de la página
 
             // Obtén los valores de los campos del formulario
             var username = document.getElementById('username').value;
