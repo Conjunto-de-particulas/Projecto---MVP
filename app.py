@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, session, redirect, url_for
 import psycopg2
+import random
 
 app = Flask(__name__)
 app.secret_key = 'tu_clave_secreta'
@@ -77,18 +78,12 @@ def create_event():
         title = request.form['title']
         description = request.form['description']
         image = request.form['image']
-        eventoid = 0
-        check = True
         # Insertar nuevo evento en la base de datos
-
+    
         cursor = conn.cursor()
-        while check:
-            print('loop')
-            try:
-                cursor.execute('INSERT INTO eventos (nombre, organizador, linkfoto, eventoid) VALUES (%s, %s, %s, %s)', (title, description, image, eventoid))
-                check = False
-            except Exception as e:
-                eventoid += 1 
+        cursor.execute('Select max(eventoid) From eventos')
+        eventoid = cursor.fetchone()[0] + 1
+        cursor.execute('INSERT INTO eventos (nombre, organizador, linkfoto, eventoid) VALUES (%s, %s, %s, %s)', (title, description, image, eventoid))
         conn.commit()
         cursor.close()
 
