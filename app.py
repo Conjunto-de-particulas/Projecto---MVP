@@ -83,11 +83,12 @@ def create_event():
         # Insertar nuevo evento en la base de datos
     
         cursor = conn.cursor()
-        cursor.execute('Select max(eventoid) From eventos')
-        if cursor.fetchone()[0] != type(1):
+        cursor.execute('Select max(eventoid), COUNT(*) as cantidadFilas From eventos')
+        temp = cursor.fetchone()
+        if temp[1] == 0:
             eventoid = 0
         else:
-            eventoid = cursor.fetchone()[0] + 1
+            eventoid = temp[0] + 1
         cursor.execute('INSERT INTO eventos (nombre, descripcion, linkfoto, eventoid, organizador) VALUES (%s, %s, %s, %s,%s)', (title, description, image, eventoid, organizador))
         conn.commit()
         cursor.close()
