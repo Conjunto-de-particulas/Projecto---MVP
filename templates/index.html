@@ -17,6 +17,10 @@
             overflow: hidden;
             background-color: #333;
             display: flex; /* Usa flexbox para alinear los elementos */
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
         }
 
         li {
@@ -35,19 +39,32 @@
             background-color: #111;
         }
 
+        .left {
+            margin-right: auto; /* Mueve el primer elemento a la izquierda */
+        }
+
         .right {
-            margin-left: auto; /* Mueve el elemento a la derecha */
+            margin-left: 10px; /* Añade un pequeño espacio entre los elementos de la derecha */
         }
 
         h1 {
             color: #333; /* Cambia el color del texto según sea necesario */
             text-align: center;
-            margin-top: 100px; /* Ajusta el margen superior según sea necesario */
+            margin-top: 60px; /* Ajusta el margen superior para dejar espacio a la barra de navegación */
+        }
+
+        .container {
+            display: flex;
+            justify-content: space-between;
+            padding: 20px;
+            margin-top: 60px; /* Deja espacio para la barra de navegación */
         }
 
         .events-container {
-            height: 400px; /* Altura fija para el contenedor de eventos */
+            height: 80vh; /* Altura fija para el contenedor de eventos */
             overflow-y: auto; /* Habilita la barra de desplazamiento vertical */
+            width: 60%; /* Ancho para los eventos */
+            padding: 20px;
         }
 
         .events {
@@ -64,7 +81,7 @@
             padding: 20px;
             border-radius: 10px;
             transition: transform 0.3s ease; /* Transición al desplazar */
-            width: 600px; /* Ancho fijo para los eventos */
+            cursor: pointer; /* Cambia el cursor para indicar que es seleccionable */
         }
 
         .event:hover {
@@ -78,12 +95,33 @@
             object-fit: cover; /* Escala la imagen para que llene el cuadro */
         }
 
-        
+        .details-container {
+            width: 35%; /* Ancho para el cuadro de detalles */
+            padding: 20px;
+            border-left: 1px solid #ccc; /* Separador entre eventos y detalles */
+        }
+
+        .details {
+            border: 1px solid #ccc;
+            padding: 20px;
+            border-radius: 10px;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .details img {
+            width: 100%;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            object-fit: cover;
+        }
+
         .create-event-form {
             display: none; /* Inicialmente oculto */
             background-color: #fff;
             border: 1px solid #ccc;
             padding: 20px;
+            padding-right: 30px; /* Ajuste de padding a la derecha */
             border-radius: 10px;
             position: fixed; /* Posiciona el formulario sobre la página */
             top: 20%;
@@ -129,34 +167,49 @@
 <body>
 
 <ul>
-    <li><a class="active" href="/">Inicio</a></li>
+    <li class="left"><a class="active" href="/">Inicio</a></li>
     {% if user %}
-        <li style="margin-left: auto;"><a href="#">{{ user.username }}</a></li>
-        <li><a class="create-event-btn" onclick="toggleForm()">Crear Evento</a></li>
-        <li><a href="/logout">Cerrar Sesión</a></li>
+        <li class="right"><a href="#">{{ user.username }}</a></li>
+        <li class="right"><a class="create-event-btn" onclick="toggleForm()">Crear Evento</a></li>
+        <li class="right"><a href="/logout">Cerrar Sesión</a></li>
     {% else %}
-        <li style="margin-left: auto;"><a href="/register">Registrarse</a></li>
-        <li><a href="/login">Iniciar Sesión</a></li>
+        <li class="right"><a href="/register">Registrarse</a></li>
+        <li class="right"><a href="/login">Iniciar Sesión</a></li>
     {% endif %}
 </ul>
 
 <h1>Bienvenido a Grouper!</h1>
 
-<div class="events-container">
-    <!-- Sección de eventos -->
-    <div class="events">
-        {% for event in events %}
-        <div class="event">
-            <img src="{{ event[2] }}" alt="{{ event[0] }}">
-            <div>
-                <h2>{{ event[0] }}</h2>
-                <p>{{ event[1] }}</p>
+<div class="container">
+    <div class="events-container">
+        <!-- Sección de eventos -->
+        <div class="events">
+            {% for event in events %}
+            <div class="event" onclick="showDetails('{{ event[0] }}', '{{ event[1] }}', '{{ event[2] }}', '{{ event[3] }}','{{ event[4] }}','{{ event[5] }}','{{ event[6] }}','{{ event[7] }}')">
+                <img src="{{ event[2] }}" alt="{{ event[0] }}">
+                <div>
+                    <h2>{{ event[0] }}</h2>
+                    <p>{{ event[1] }}</p>
+                </div>
             </div>
+            {% endfor %}
         </div>
-        {% endfor %}
+    </div>
+
+    <div class="details-container">
+        <!-- Cuadro de detalles del evento -->
+        <div class="details" id="eventDetails">
+            <img src="" alt="Event Image" id="detailImage">
+            <h2 id="detailTitle">Selecciona un evento</h2>
+            <p id="detailOrganizador">Los detalles del evento aparecerán aquí.</p>
+            <p id="detailDescription"></p>
+            <p id="detailFecha"></p>
+            <p id="detailDuracion"></p>
+            <p id="detailCiudad"></p>
+            <p id="detailDireccion"></p>
+        </div>
     </div>
 </div>
-
 
 <div class="create-event-form" id="createEventForm" >
     <h2>Crear Nuevo Evento</h2>
@@ -188,8 +241,21 @@
             form.style.display = 'none';
         }
     }
-</script>
 
+    function showDetails(title, organizador, image, descripcion, fecha, duracion, ciudad, direccion) {
+        console.log(title)
+        console.log(descripcion)
+        console.log("funciona")
+        document.getElementById('detailTitle').innerText = title;
+        document.getElementById('detailOrganizador').innerText = 'Organizador: ' + organizador;
+        document.getElementById('detailImage').src = image;
+        document.getElementById('detailDescription').innerText = 'Descripcion: ' + descripcion;
+        document.getElementById('detailFecha').innerText = 'Cuando: ' + fecha + ' por ' + duracion + ' horas';
+        //document.getElementById('detailDuracion').innerText = 'Duracion: '+ duracion + ' horas';
+        document.getElementById('detailCiudad').innerText = 'Donde: ' + ciudad + ' en ' + direccion;
+        //document.getElementById('detailDireccion').innerText = 'Direccion: ' ;
+    }
+</script>
 
 </body>
 </html>

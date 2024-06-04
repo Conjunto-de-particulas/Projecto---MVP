@@ -9,7 +9,7 @@ app.secret_key = 'tu_clave_secreta'
 conn = psycopg2.connect(
     dbname='Final',
     user='postgres',
-    password='19283746abC',
+    password='admin',
     host='localhost'
 )
 
@@ -17,8 +17,9 @@ conn = psycopg2.connect(
 def index():
     user = session.get('user')
     cursor = conn.cursor()
-    cursor.execute('SELECT nombre, organizador, linkfoto FROM eventos')
+    cursor.execute('SELECT nombre, organizador, linkfoto, descripcion, fecha, duracion, ciudad, direccion FROM eventos')
     events = cursor.fetchall()
+    print(events)
     cursor.close()
     return render_template('index.html', user=user, events=events)
 
