@@ -79,12 +79,16 @@ def create_event():
         title = request.form['title']
         description = request.form['description']
         image = request.form['image']
+        organizador = request.form['organizador']
         # Insertar nuevo evento en la base de datos
     
         cursor = conn.cursor()
         cursor.execute('Select max(eventoid) From eventos')
-        eventoid = cursor.fetchone()[0] + 1
-        cursor.execute('INSERT INTO eventos (nombre, organizador, linkfoto, eventoid) VALUES (%s, %s, %s, %s)', (title, description, image, eventoid))
+        if cursor.fetchone()[0] != type(1):
+            eventoid = 0
+        else:
+            eventoid = cursor.fetchone()[0] + 1
+        cursor.execute('INSERT INTO eventos (nombre, descripcion, linkfoto, eventoid, organizador) VALUES (%s, %s, %s, %s,%s)', (title, description, image, eventoid, organizador))
         conn.commit()
         cursor.close()
 
