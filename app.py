@@ -9,7 +9,7 @@ app.secret_key = 'tu_clave_secreta'
 conn = psycopg2.connect(
     dbname='Final',
     user='postgres',
-    password='admin',
+    password='19283746abC',
     host='localhost'
 )
 
@@ -80,6 +80,10 @@ def create_event():
         description = request.form['description']
         image = request.form['image']
         organizador = request.form['organizador']
+        lugar = request.form['lugar']
+        fecha = request.form['fecha']
+        ciudad = request.form['ciudad']
+        duracion = request.form['duracion']
         # Insertar nuevo evento en la base de datos
     
         cursor = conn.cursor()
@@ -89,7 +93,7 @@ def create_event():
             eventoid = 0
         else:
             eventoid = temp[0] + 1
-        cursor.execute('INSERT INTO eventos (nombre, descripcion, linkfoto, eventoid, organizador) VALUES (%s, %s, %s, %s,%s)', (title, description, image, eventoid, organizador))
+        cursor.execute('INSERT INTO eventos (nombre, descripcion, linkfoto, eventoid, organizador, direccion, fecha, ciudad, duracion) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)', (title, description, image, eventoid, organizador, lugar, fecha, ciudad, duracion))
         conn.commit()
         cursor.close()
 
