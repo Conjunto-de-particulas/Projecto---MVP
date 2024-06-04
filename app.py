@@ -14,19 +14,56 @@ conn = psycopg2.connect(
     host='localhost'
 )
 
+@app.route('/check_subscription', methods=['POST'])
+def check_subscription():
+    data = request.get_json()
+    title = data['title']
+    
+    # Check if the event title is in the subscribed events in the session
+    is_subscribed = 'asistir' in session and title in session['asistir']
+    
+    return jsonify({"status": "subscribed" if is_subscribed else "unsubscribed", "title": title})
+
 @app.route('/subscribe', methods=['POST'])
 def subscribe():
-    # Aquí se agregarían las operaciones de suscripción en la base de datos
-    session['subscribed'] = 'true'
-    print("ahora suscrito")
-    return jsonify(success=True)
+    data = request.get_json()
+    title = data['title']
+    
+    # Add the event title to the subscribed events in the session
+    if 'asistir' not in session:
+        session['asistir'] = []
+    
+    if title not in session['asistir']:
+        session['asistir'].append(title)
+        session.modified = True
+
+    user = session.get('user')
+    cursor = conn.cursor()
+    cursor.execute("INSERT INTO atendimientos (cuenta, evento) VALUES (%s, %s);", (user['username'], title))
+    conn.commit()
+    print(title)
+    cursor.close()
+    
+    return jsonify({"status": "subscribed", "title": title})
 
 @app.route('/unsubscribe', methods=['POST'])
 def unsubscribe():
-    # Aquí se agregarían las operaciones para cancelar la suscripción en la base de datos
-    session['subscribed'] = 'false'
-    print("ahora no suscrito")
-    return jsonify(success=True)
+    data = request.get_json()
+    title = data['title']
+    
+    # Remove the event title from the subscribed events in the session
+    if 'asistir' in session and title in session['asistir']:
+        session['asistir'].remove(title)
+        session.modified = True
+    
+    user = session.get('user')
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM atendimientos WHERE cuenta = %s AND evento = %s;", (user['username'], title))
+    conn.commit()
+    print(title)
+    #cursor.execute('SELECT evento FROM atendimientos WHERE cuenta = %s', (user['username'],))
+    cursor.close()
+    return jsonify({"status": "unsubscribed", "title": title})
 
 @app.route('/')
 def index():
@@ -43,7 +80,7 @@ def index():
     cursor.close()
     #data_json = json.dumps(asistir)
     #return render_template('index.html', user=user, events=events, data_json=data_json)
-    return render_template('index.html', user=user, events=events)
+    return render_template('index.html', user=user, events=events, asistir=asistir)
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():

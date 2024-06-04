@@ -226,6 +226,7 @@
             <p id="detailDireccion"></p>
             <button id="subscribeButton" onclick="toggleSubscription()">Suscribirse</button>
             <input type="hidden" id="subscriptionStatus" value="{{ session.get('subscribed', 'false') }}">
+            <input type="hidden" id="asistir" value="{{ session.get('asistir', '[]') }}">
         </div>
     </div>
 </div>
@@ -289,12 +290,32 @@
         document.getElementById('detailCiudad').innerText = 'Donde: ' + ciudad + ' en ' + direccion;
         //document.getElementById('detailDireccion').innerText = 'Direccion: ' ;
         currentEventTitle = title;
-        updateSubscriptionStatus();
+        //updateSubscriptionStatus();
+        // Send a request to check the subscription status
+        fetch('/check_subscription', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ title: currentEventTitle })
+        })
+        .then(response => response.json())
+        .then(data => {
+            var subscribeButton = document.getElementById('subscribeButton');
+            if (data.status === 'subscribed') {
+                subscribeButton.innerText = 'Suscrito';
+            } else {
+                subscribeButton.innerText = 'Suscribirse';
+            }
+        })
+        .catch(error => console.error('Error:', error));
     }
 
     function updateSubscriptionStatus() {
+        subscribedEvents = JSON.parse(document.getElementById('asistir').value);
+        //subscribedEvents = {{ asistir }}
         var subscribeButton = document.getElementById('subscribeButton');
-        console.log("llego hasta aqui")
+        console.log(subscribedEvents)
         var isSubscribed = subscribedEvents.includes(currentEventTitle);
         console.log(subscribedEvents)
         subscribeButton.innerText = isSubscribed ? 'Suscrito' : 'Suscribirse';
@@ -308,24 +329,30 @@
         var subscribeButton = document.getElementById('subscribeButton');
         var subscriptionStatus = document.getElementById('subscriptionStatus');
         
-        if (subscribeButton.innerText === 'Suscribirse') {
-            subscribeButton.innerText = 'Suscrito';
-            subscriptionStatus.value = 'true';
-            // Llamada a Flask para suscribirse
-            fetch('/subscribe', {method: 'POST'})
-                .then(response => response.json())
-                .then(data => console.log(data))
-                .catch(error => console.error('Error:', error));
-        } else {
-            subscribeButton.innerText = 'Suscribirse';
-            subscriptionStatus.value = 'false';
-            // Llamada a Flask para cancelar suscripción
-            fetch('/unsubscribe', {method: 'POST'})
-                .then(response => response.json())
-                .then(data => console.log(data))
-                .catch(error => console.error('Error:', error));
-        }
+        var url = subscribeButton.innerText === 'Suscribirse' ? '/subscribe' : '/unsubscribe';
+        var data = { title: currentEventTitle };
+        
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);
+            if (data.status === 'subscribed') {
+                subscribeButton.innerText = 'Suscrito';
+                subscriptionStatus.value = 'true';
+            } else {
+                subscribeButton.innerText = 'Suscribirse';
+                subscriptionStatus.value = 'false';
+            }
+        })
+        .catch(error => console.error('Error:', error));
     }
+
 </script>
 
 
