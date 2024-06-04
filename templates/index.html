@@ -288,14 +288,13 @@
         //document.getElementById('detailDuracion').innerText = 'Duracion: '+ duracion + ' horas';
         document.getElementById('detailCiudad').innerText = 'Donde: ' + ciudad + ' en ' + direccion;
         //document.getElementById('detailDireccion').innerText = 'Direccion: ' ;
-        console.log("llego hasta aqui")
         currentEventTitle = title;
-        console.log("error")
         updateSubscriptionStatus();
     }
 
     function updateSubscriptionStatus() {
         var subscribeButton = document.getElementById('subscribeButton');
+        console.log("llego hasta aqui")
         var isSubscribed = subscribedEvents.includes(currentEventTitle);
         console.log(subscribedEvents)
         subscribeButton.innerText = isSubscribed ? 'Suscrito' : 'Suscribirse';
