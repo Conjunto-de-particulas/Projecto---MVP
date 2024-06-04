@@ -101,6 +101,23 @@
             border-left: 1px solid #ccc; /* Separador entre eventos y detalles */
         }
 
+        .details-container button {
+            background-color: #333;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px; /* Añade un margen superior para separar el botón del contenido */
+            display: block; /* Asegura que el botón ocupe todo el ancho disponible */
+            width: 100%;
+            font-size: 16px; /* Ajusta el tamaño de la fuente */
+        }
+
+        .details-container button:hover {
+            background-color: #111;
+        }
+
         .details {
             border: 1px solid #ccc;
             padding: 20px;
@@ -207,6 +224,8 @@
             <p id="detailDuracion"></p>
             <p id="detailCiudad"></p>
             <p id="detailDireccion"></p>
+            <button id="subscribeButton" onclick="toggleSubscription()">Suscribirse</button>
+            <input type="hidden" id="subscriptionStatus" value="{{ session.get('subscribed', 'false') }}">
         </div>
     </div>
 </div>
@@ -237,19 +256,14 @@
 </div>
 
 <script>
+    var subscribedEvents = JSON.parse(document.getElementById('asistir').value);
+    var currentEventTitle = "";
     function toggleForm() {
         var form = document.getElementById('createEventForm');
-        if (form.style.display === 'none' || form.style.display === '') {
-            form.style.display = 'block';
-        } else {
-            form.style.display = 'none';
-        }
+        form.style.display = form.style.display === 'none' || form.style.display === '' ? 'block' : 'none';
     }
 
     function showDetails(title, organizador, image, descripcion, fecha, duracion, ciudad, direccion) {
-        console.log(title)
-        console.log(descripcion)
-        console.log("funciona")
         document.getElementById('detailTitle').innerText = title;
         document.getElementById('detailOrganizador').innerText = 'Organizador: ' + organizador;
         document.getElementById('detailImage').src = image;
@@ -258,8 +272,48 @@
         //document.getElementById('detailDuracion').innerText = 'Duracion: '+ duracion + ' horas';
         document.getElementById('detailCiudad').innerText = 'Donde: ' + ciudad + ' en ' + direccion;
         //document.getElementById('detailDireccion').innerText = 'Direccion: ' ;
+        console.log("llego hasta aqui")
+        currentEventTitle = title;
+        console.log("error")
+        updateSubscriptionStatus();
+    }
+
+    function updateSubscriptionStatus() {
+        var subscribeButton = document.getElementById('subscribeButton');
+        var isSubscribed = subscribedEvents.includes(currentEventTitle);
+        console.log(subscribedEvents)
+        subscribeButton.innerText = isSubscribed ? 'Suscrito' : 'Suscribirse';
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        updateSubscriptionStatus();
+    });
+
+    function toggleSubscription() {
+        var subscribeButton = document.getElementById('subscribeButton');
+        var subscriptionStatus = document.getElementById('subscriptionStatus');
+        
+        if (subscribeButton.innerText === 'Suscribirse') {
+            subscribeButton.innerText = 'Suscrito';
+            subscriptionStatus.value = 'true';
+            // Llamada a Flask para suscribirse
+            fetch('/subscribe', {method: 'POST'})
+                .then(response => response.json())
+                .then(data => console.log(data))
+                .catch(error => console.error('Error:', error));
+        } else {
+            subscribeButton.innerText = 'Suscribirse';
+            subscriptionStatus.value = 'false';
+            // Llamada a Flask para cancelar suscripción
+            fetch('/unsubscribe', {method: 'POST'})
+                .then(response => response.json())
+                .then(data => console.log(data))
+                .catch(error => console.error('Error:', error));
+        }
     }
 </script>
+
+
 
 </body>
 </html>

@@ -1,6 +1,7 @@
-from flask import Flask, render_template, request, session, redirect, url_for
+from flask import Flask, render_template, request, session,jsonify, redirect, url_for
 import psycopg2
 import random
+import json
 
 app = Flask(__name__)
 app.secret_key = 'tu_clave_secreta'
@@ -13,14 +14,35 @@ conn = psycopg2.connect(
     host='localhost'
 )
 
+@app.route('/subscribe', methods=['POST'])
+def subscribe():
+    # Aquí se agregarían las operaciones de suscripción en la base de datos
+    session['subscribed'] = 'true'
+    print("ahora suscrito")
+    return jsonify(success=True)
+
+@app.route('/unsubscribe', methods=['POST'])
+def unsubscribe():
+    # Aquí se agregarían las operaciones para cancelar la suscripción en la base de datos
+    session['subscribed'] = 'false'
+    print("ahora no suscrito")
+    return jsonify(success=True)
+
 @app.route('/')
 def index():
     user = session.get('user')
     cursor = conn.cursor()
     cursor.execute('SELECT nombre, organizador, linkfoto, descripcion, fecha, duracion, ciudad, direccion FROM eventos')
     events = cursor.fetchall()
-    print(events)
+    cursor.execute('SELECT evento FROM atendimientos WHERE cuenta = %s', (user['username'],))
+    asistir = cursor.fetchall()
+    asistir = [item for sublist in asistir for item in sublist]
+    session['asistir'] = asistir
+    #print(user)
+    print(asistir)
     cursor.close()
+    #data_json = json.dumps(asistir)
+    #return render_template('index.html', user=user, events=events, data_json=data_json)
     return render_template('index.html', user=user, events=events)
 
 @app.route('/register', methods=['GET', 'POST'])
