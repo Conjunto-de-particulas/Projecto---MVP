@@ -10,7 +10,7 @@ app.secret_key = 'tu_clave_secreta'
 conn = psycopg2.connect(
     dbname='Final',
     user='postgres',
-    password='19283746abC',
+    password='admin',
     host='localhost'
 )
 
