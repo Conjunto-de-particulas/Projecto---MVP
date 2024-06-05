@@ -65,16 +65,50 @@ def unsubscribe():
     cursor.close()
     return jsonify({"status": "unsubscribed", "title": title})
 
+
+@app.route('/perfil')
+def perfil():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+
+
+    username = session['username']
+    cursor = conn.cursor()
+
+    # Obtener los eventos a los que el usuario está suscrito
+    cursor.execute('SELECT evento FROM atendimientos WHERE cuenta = %s', (username,))
+    subscribed_event_names = cursor.fetchall()
+    
+    # Extraer solo los nombres de los eventos en una lista
+    subscribed_event_names = [event[0] for event in subscribed_event_names]
+    print(subscribed_event_names)
+    # Obtener detalles de los eventos suscritos
+    if subscribed_event_names:
+        format_strings = ','.join(['%s'] * len(subscribed_event_names))
+        cursor.execute(f'SELECT nombre, organizador, linkfoto, descripcion, fecha, duracion, ciudad, direccion FROM eventos WHERE nombre IN ({format_strings})', tuple(subscribed_event_names))
+        subscribed_events = cursor.fetchall()
+    else:
+        subscribed_events = []
+
+    cursor.close()
+    conn.close()
+
+    return render_template('perfil.html', events=subscribed_events)
+
 @app.route('/')
 def index():
     user = session.get('user')
     cursor = conn.cursor()
     cursor.execute('SELECT nombre, organizador, linkfoto, descripcion, fecha, duracion, ciudad, direccion FROM eventos')
     events = cursor.fetchall()
-    cursor.execute('SELECT evento FROM atendimientos WHERE cuenta = %s', (user['username'],))
-    asistir = cursor.fetchall()
-    asistir = [item for sublist in asistir for item in sublist]
+    if(user):
+        cursor.execute('SELECT evento FROM atendimientos WHERE cuenta = %s', (user['username'],))
+        asistir = cursor.fetchall()
+        asistir = [item for sublist in asistir for item in sublist]
+    else:
+        asistir = []
     session['asistir'] = asistir
+
     #print(user)
     print(asistir)
     cursor.close()
